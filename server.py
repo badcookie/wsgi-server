@@ -1,0 +1,65 @@
+from socket import socket
+from typing import Any, Tuple
+from functools import partial
+
+
+class WSGIServer:
+    socket: 'socket'
+    address: Tuple[str, int]
+
+    def __init__(self, port: int):
+        self.address = ('localhost', port)
+
+        self.socket = socket()
+        self.socket.bind(self.address)
+        self.socket.listen(1)
+
+    @staticmethod
+    def parse_request(data: str):
+        request, *headers, _, body = data.split('\r\n')
+        method, path, protocol = request.split(' ')
+        processed_headers = dict(
+            item.split(': ')
+            for item in headers
+        )
+        return method, path, protocol, processed_headers, body
+
+    def _to_environ(self, request_data: str):
+        (
+            method, path, protocol,
+            processed_headers, body
+        ) = self.parse_request(request_data)
+
+        host, port = self.address
+        return {
+            'wsgi.version': (1, 0),
+            'REQUEST_METHOD': method,
+            'PATH_INFO': path,
+            'SERVER_NAME': host,
+            'SERVER_PORT': str(port),
+            'SERVER_PROTOCOL': protocol,
+            'wsgi.url_scheme': 'http',
+        }
+
+    @staticmethod
+    def _start_response(conn, status, headers):
+        status_line = f'HTTP/1.1 {status}\r\n'.encode()
+        conn.sendall(status_line)
+
+        for header, value in headers:
+            data = f'{header}: {value}\r\n'.encode()
+            conn.sendall(data)
+
+        final_message = '\r\n'.encode()
+        conn.sendall(final_message)
+
+    def run(self, app: Any):
+        while True:
+            conn, client_address = self.socket.accept()
+            request = conn.recv(512).decode('utf-8')
+            environ = self._to_environ(request)
+            start_response = partial(self._start_response, conn)
+            response = app(environ, start_response)
+            for data in response:
+                conn.sendall(data)
+
