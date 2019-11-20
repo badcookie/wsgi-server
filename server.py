@@ -1,5 +1,5 @@
 from io import StringIO
-from socket import socket
+from socket import socket, SHUT_RDWR
 
 from typing import Any, Tuple
 from functools import partial
@@ -57,6 +57,7 @@ class WSGIServer:
         conn.sendall(final_message)
 
     def run(self, app: Any):
+        """Запускает сервер и отправляет входящие запросы приложению."""
         while True:
             conn, client_address = self.socket.accept()
             request = conn.recv(1024).decode('utf-8')
@@ -65,4 +66,8 @@ class WSGIServer:
             response = app(environ, start_response)
             for data in response:
                 conn.sendall(data)
+
+    def stop(self):
+        self.socket.shutdown(SHUT_RDWR)
+        self.socket.close()
 

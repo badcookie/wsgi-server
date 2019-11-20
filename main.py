@@ -4,4 +4,8 @@ from apps import flask_app, custom_app, django_app
 from server import WSGIServer
 
 server = WSGIServer(host='localhost', port=8000)
-server.run(django_app)
+if __name__ == '__main__':
+    try:
+        server.run(django_app)
+    except KeyboardInterrupt:
+        server.stop()
