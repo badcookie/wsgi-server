@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from apps import flask_app, app
+from apps import flask_app, custom_app
 from server import WSGIServer
 
-server = WSGIServer(port=8000)
+server = WSGIServer(host='localhost', port=8000)
 server.run(flask_app)
