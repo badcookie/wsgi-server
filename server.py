@@ -1,4 +1,6 @@
+from io import StringIO
 from socket import socket
+
 from typing import Any, Tuple
 from functools import partial
 
@@ -7,8 +9,8 @@ class WSGIServer:
     socket: 'socket'
     address: Tuple[str, int]
 
-    def __init__(self, port: int):
-        self.address = ('localhost', port)
+    def __init__(self, host: str, port: int):
+        self.address = (host, port)
 
         self.socket = socket()
         self.socket.bind(self.address)
@@ -39,6 +41,7 @@ class WSGIServer:
             'SERVER_PORT': str(port),
             'SERVER_PROTOCOL': protocol,
             'wsgi.url_scheme': 'http',
+            'wsgi.input': StringIO(body)
         }
 
     @staticmethod
@@ -56,7 +59,7 @@ class WSGIServer:
     def run(self, app: Any):
         while True:
             conn, client_address = self.socket.accept()
-            request = conn.recv(512).decode('utf-8')
+            request = conn.recv(1024).decode('utf-8')
             environ = self._to_environ(request)
             start_response = partial(self._start_response, conn)
             response = app(environ, start_response)
