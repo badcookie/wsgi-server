@@ -1,5 +1,5 @@
 from io import StringIO
-from socket import socket, SHUT_RDWR
+from socket import socket, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 
 from functools import partial
 from typing import Any, Tuple, Union
@@ -13,7 +13,7 @@ class WSGIServer:
     address: Tuple[str, int]
 
     def __init__(self, host: str, port: int):
-        self.address = (host, port)
+        self.address = host, port
 
         self.socket = socket()
         self.socket.bind(self.address)
