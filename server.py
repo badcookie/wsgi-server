@@ -1,8 +1,11 @@
 from io import StringIO
-from socket import socket, SHUT_RDWR
+from socket import socket, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 
-from typing import Any, Tuple
 from functools import partial
+from typing import Any, Tuple, Union
+
+
+REQUEST_PARTS = Tuple[str, str, str, dict, str]
 
 
 class WSGIServer:
@@ -10,14 +13,14 @@ class WSGIServer:
     address: Tuple[str, int]
 
     def __init__(self, host: str, port: int):
-        self.address = (host, port)
+        self.address = host, port
 
         self.socket = socket()
         self.socket.bind(self.address)
         self.socket.listen(1)
 
     @staticmethod
-    def parse_request(data: str):
+    def parse_request(data: str) -> REQUEST_PARTS:
         request, *headers, _, body = data.split('\r\n')
         method, path, protocol = request.split(' ')
         processed_headers = dict(
@@ -26,7 +29,7 @@ class WSGIServer:
         )
         return method, path, protocol, processed_headers, body
 
-    def _to_environ(self, request_data: str):
+    def _to_environ(self, request_data: str) -> dict:
         (
             method, path, protocol,
             processed_headers, body
@@ -45,7 +48,7 @@ class WSGIServer:
         }
 
     @staticmethod
-    def _start_response(conn, status, headers):
+    def _start_response(conn: 'socket', status: int, headers: Union[list, tuple]) -> None:
         status_line = f'HTTP/1.1 {status}\r\n'.encode()
         conn.sendall(status_line)
 
@@ -56,8 +59,7 @@ class WSGIServer:
         final_message = '\r\n'.encode()
         conn.sendall(final_message)
 
-    def run(self, app: Any):
-        """Запускает сервер и отправляет входящие запросы приложению."""
+    def run(self, app: Any) -> None:
         while True:
             conn, client_address = self.socket.accept()
             request = conn.recv(1024).decode('utf-8')
