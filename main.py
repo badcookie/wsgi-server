@@ -1,10 +1,12 @@
-#!/usr/bin/env python3
-
 import click
+import logging
 from typing import Any
 
 from server import WSGIServer
 from apps import flask_app, custom_app, django_app
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('main')
 
 
 apps = {
@@ -21,9 +23,11 @@ apps = {
 def main(host: str, port: int, app: Any) -> None:
     server = WSGIServer(host=host, port=port)
     try:
+        logger.info('Launching server at port %d', port)
         application = apps[app]
         server.run(application)
     except KeyboardInterrupt:
+        logger.info('Stopping server.')
         server.stop()
 
 
