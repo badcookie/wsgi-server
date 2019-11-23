@@ -13,39 +13,51 @@ server.run(my_app)
 ---
 
 
-```WSGIServer.__init__(host, port)```
+```
+WSGIServer.__init__(host, port)
+```
 
 Создаёт главный сокет, привязывает его к адресу ```(host, port)``` и переводит в режим прослушивания.
 
 <br>
 
-```WSGIServer._parse_request(data)```
+```
+WSGIServer._parse_request(data)
+```
 
 Извлекает HTTP данные из декодированного запроса.
 
 <br>
 
-```WSGIServer._to_environ(request_data)```
+```
+WSGIServer._to_environ(request_data)
+```
 
 Использует HTTP данные в качестве переменных среды для 
 приложения, передавая их в словарь environ.
 
 <br>
 
-```WSGIServer.run(app)``` 
+```
+WSGIServer.run(app)
+``` 
 
 Сокет принимает входящие запросы, приводит их к стандартному словарю environ
 и передаёт приложению ``app``. Ответ от приложения передаётся сокету клиента.
 
 <br>
 
-```WSGIServer._start_response(status, headers)```
+```
+WSGIServer._start_response(status, headers)
+```
 
 Обработчик ответа от приложения. Вызывается самим приложением.
 
 <br>
 
-```WSGIServer.stop()```
+```
+WSGIServer.stop()
+```
 
 Сокет сервера посылает сигналы на закрытие соединения и уничтожается.
 
