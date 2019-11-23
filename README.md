@@ -19,6 +19,19 @@ server.run(my_app)
 
 <br>
 
+```WSGIServer._parse_request(data)```
+
+Извлекает HTTP данные из декодированного запроса.
+
+<br>
+
+```WSGIServer._to_environ(request_data)```
+
+Использует HTTP данные в качестве переменных среды для 
+приложения, передавая их в словарь environ.
+
+<br>
+
 ```WSGIServer.run(app)``` 
 
 Сокет принимает входящие запросы, приводит их к стандартному словарю environ
@@ -26,10 +39,9 @@ server.run(my_app)
 
 <br>
 
-```WSGIServer._to_environ(request_data)```
+```WSGIServer._start_response(status, headers)```
 
-Извлекает HTTP данные из декодированного запроса и использует их в качестве переменных среды для 
-приложения.
+Обработчик ответа от приложения. Вызывается самим приложением.
 
 <br>
 
