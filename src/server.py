@@ -21,7 +21,7 @@ class WSGIServer:
         self.socket.listen(1)
 
     @staticmethod
-    def parse_request(data: str) -> REQUEST_PARTS:
+    def _parse_request(data: str) -> REQUEST_PARTS:
         request, *headers, _, body = data.split('\r\n')
         method, path, protocol = request.split(' ')
         processed_headers = dict(
@@ -34,7 +34,7 @@ class WSGIServer:
         (
             method, path, protocol,
             processed_headers, body
-        ) = self.parse_request(request_data)
+        ) = self._parse_request(request_data)
 
         host, port = self.address
         return {
