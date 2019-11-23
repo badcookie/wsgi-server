@@ -16,6 +16,7 @@ class WSGIServer:
         self.address = host, port
 
         self.socket = socket()
+        self.socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.socket.bind(self.address)
         self.socket.listen(1)
 
@@ -69,7 +70,7 @@ class WSGIServer:
             for data in response:
                 conn.sendall(data)
 
-    def stop(self):
+    def stop(self) -> None:
         self.socket.shutdown(SHUT_RDWR)
         self.socket.close()
 
